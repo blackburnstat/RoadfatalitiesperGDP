@@ -2,8 +2,9 @@ library(pxweb)
 library(tidyverse)
 library(plotly)
 
-#this is another example mof using the UNECE API query to download a few different datasets, combine them and create an interactive plotly bubble graph
-pxweb_interactive('w3.unece.org')
+#this is another example of using the UNECE API query to download a few different datasets, combine them and create an interactive plotly bubble graph
+#the next line can be run to create code for any query you like
+#pxweb_interactive('w3.unece.org')
 ####gdp per capita####
 pxweb_query_gdp <- 
   list("Expenditure"=c("ME.1041"),
@@ -64,37 +65,15 @@ ggplot(px_data_pop)+
 combined<-left_join(px_data_gdp,px_data_frame_deaths,by=c("Country","Year")) %>%
   left_join(px_data_pop)%>%
   filter(Year>1999&Year<2020) %>%
+  #filter out incomplete countries
   filter(Country!="Monaco"&Country!="Liechtenstein"&Country!="San Marino"&Country!="Andorra"&Country!="Bosnia and Herzegovina"&Country!="Montenegro"&Country!="Republic of Moldova"&Country!="Russian Federation"&Country!="Turkmenistan"&Country!="Ukraine"&Country!="United Kingdom") %>%
   na.omit() 
 
-  #filter(Country=="United States")
+#now create a ggplot and pass it to plotly
+a<-ggplot(combined,aes(x=GDPconstant,y=Deaths,size=Population*3,color=Country,text=Country,alpha=0.4))+
+  geom_point(aes(frame=Year))+
+  theme(legend.position = "none")+
+  xlab("GDP per capita %(in 2010 USD using PPPs%)")+
+  ylab("Road fatalities per million inhabitants")
+ggplotly(a,tooltip = "text")
 
-summary(combined)
-a<-ggplot(combined,aes(x=GDPconstant,y=Deaths,size=Population,color=Country,alpha=0.4))+
-  geom_point(aes(frame=Year))
-ggplotly(a)
-####
-
-q<-combined %>%
-  group_by(Country)%>%
-  summarise(new=n()) %>%
-  filter(new!=20)
-
-#directly in pltoly without ggplot
-
-library(plotly)
-library(gapminder)
-
-df <- combined
-fig <- df %>%
-  plot_ly(
-    x = ~GDPconstant,    y = ~Deaths,  size = ~Population,  color = ~Country,frame = ~Year, 
-    text = ~Country, 
-    hoverinfo = "text",
-    type = 'scatter',
-    mode = 'markers'
-  )
-fig <- fig %>% layout(
-  xaxis = list(    type = "log"  ))
-
-fig
