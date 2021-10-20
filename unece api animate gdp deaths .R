@@ -2,7 +2,7 @@ library(pxweb)
 library(tidyverse)
 library(plotly)
 
-#this is another example of using the UNECE API query to download a few different datasets, combine them and create an interactive plotly bubble graph
+#this is an example of using the UNECE API query to download a few different datasets, combine them and create an interactive plotly bubble graph
 #the next line can be run to create code for any query you like
 #pxweb_interactive('w3.unece.org')
 ####gdp per capita####
